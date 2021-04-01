@@ -38,7 +38,7 @@ class Is_Searchbar extends Module implements WidgetInterface
     {
         $this->name = 'is_searchbar';
         $this->author = 'Igor Stępień';
-        $this->version = '1.1.0';
+        $this->version = '1.0.0';
         $this->need_instance = 0;
 
         parent::__construct();
