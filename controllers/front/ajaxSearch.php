@@ -20,7 +20,7 @@ class Is_searchbarAjaxSearchModuleFrontController extends ModuleFrontController
         $this->ajaxRender(json_encode([
             'hasError' => false,
             'sucess' => true,
-            'content' => $this->renderResults()
+            'content' => $this->renderResults(),
         ]));
 
         $this->ajaxDie();
@@ -59,11 +59,11 @@ class Is_searchbarAjaxSearchModuleFrontController extends ModuleFrontController
             $moreResultsCount = $data['total'] - count($products);
         }
 
-        $this->context->smarty->assign(array(
+        $this->context->smarty->assign([
             'products' => $products_for_template,
             'moreResults' => $moreResults,
-            'moreResultsCount' => $moreResultsCount
-        ));
+            'moreResultsCount' => $moreResultsCount,
+        ]);
 
         return $this->context->smarty->fetch('module:is_searchbar/views/templates/front/search_result.tpl');
     }

@@ -38,7 +38,7 @@ class Is_Searchbar extends Module implements WidgetInterface
     {
         $this->name = 'is_searchbar';
         $this->author = 'Igor Stępień';
-        $this->version = '1.0.0';
+        $this->version = '1.1.0';
         $this->need_instance = 0;
 
         parent::__construct();
@@ -46,8 +46,7 @@ class Is_Searchbar extends Module implements WidgetInterface
         $this->displayName = $this->l('Search bar');
         $this->description = $this->l('Adds a quick search field to your website.');
 
-        $this->ps_versions_compliancy = array('min' => '1.7.4.0', 'max' => _PS_VERSION_);
-
+        $this->ps_versions_compliancy = ['min' => '1.7.4.0', 'max' => _PS_VERSION_];
         $this->templateFile = 'module:is_searchbar/views/templates/hook/is_searchbar.tpl';
     }
 
@@ -56,21 +55,21 @@ class Is_Searchbar extends Module implements WidgetInterface
         return parent::install()
             && $this->registerHook('displayTop')
             && $this->registerHook('displaySearch')
-            && $this->registerHook('header')
+            && $this->registerHook('actionFrontControllerSetMedia')
         ;
     }
 
-    public function hookHeader()
+    public function hookActionFrontControllerSetMedia()
     {
-        $this->context->controller->registerJavascript('modules-searchbar', 'modules/'.$this->name.'/views/js/is_searchbar.js', ['position' => 'bottom', 'priority' => 150]);
+        $this->context->controller->registerJavascript('modules-searchbar', 'modules/' . $this->name . '/views/js/is_searchbar.js', ['position' => 'bottom', 'priority' => 150]);
     }
 
     public function getWidgetVariables($hookName, array $configuration = [])
     {
-        $widgetVariables = array(
+        $widgetVariables = [
             'ajax_search_url' => $this->context->link->getModuleLink($this->name, 'ajaxSearch'),
             'search_controller_url' => $this->context->link->getPageLink('search', null, null, null, false, null, true),
-        );
+        ];
 
         if (!array_key_exists('search_string', $this->context->smarty->getTemplateVars())) {
             $widgetVariables['search_string'] = '';
