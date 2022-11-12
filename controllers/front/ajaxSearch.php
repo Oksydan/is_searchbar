@@ -22,8 +22,6 @@ class Is_searchbarAjaxSearchModuleFrontController extends ModuleFrontController
             'sucess' => true,
             'content' => $this->renderResults(),
         ]));
-
-        $this->ajaxDie();
     }
 
     private function renderResults()

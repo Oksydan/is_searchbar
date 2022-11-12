@@ -1,45 +1,50 @@
-/* global $ */
-$(document).ready(function () {
+const init = () => {
+    const searchInput = document.querySelector('.js-search-input');
+    const getAjaxUrlFromElement = (el) => (el && el.length ? el.getAttribute('data-search-controller-url') : null);
+    const ajaxUrl = getAjaxUrlFromElement(document.querySelector('[data-search-controller-url]'));
+    const body = document.querySelector('body');
+    const inputForm = searchInput.closest('.js-search-form');
+    const backdrop = document.createElement('div');
+    backdrop.classList.add('search-backdrop');
+    body.appendChild(backdrop);
 
-    var $searchInput = $('.js-search-input');
-    var ajaxUrl = $('[data-search-controller-url]').data('search-controller-url');
-    var $body = $('body');
-    var $inputForm = $searchInput.closest('form');
-    $body.append($('<div>').addClass('search-backdrop'));
+    if (!ajaxUrl) {
+        return;
+    }
 
-    var search = new SearchInput({
+    const Search = new SearchInput({
         searchUrl: ajaxUrl,
-        $input: $searchInput,
+        input: searchInput,
         appendTo: '.js-search-form',
         perPage: 6,
-        onResult: function(e) {
-            $body.addClass('search-result-open');
+        onResult: (e) => {
+            body.classList.add('search-result-open');
+            prestashop.pageLazyLoad.update();
         },
-        onRemoveResult: function(e) {
-            $body.removeClass('search-result-open');
+        onRemoveResult: (e) => {
+            body.classList.remove('search-result-open');
         },
-        beforeSend: function(e) {
+        beforeSend: (e) => {
             // console.log('BEFORE SEND ' + e);
         },
-        onType: function(e) {
+        onType: (e) => {
             // console.log('ON TYPE ' + e);
         }
     });
 
-    $body.on('click', function(e) {
-        var $target = $(e.target);
-        if ($body.hasClass('search-result-open') && $target != $inputForm && !$target.closest($inputForm).length) {
-            $body.removeClass('search-result-open');
-            search.removeResults();
+    body.addEventListener('click', ({ target }) => {
+        if (body.classList.contains('search-result-open') && target != inputForm && !target.closest('.js-search-form')) {
+            body.classList.remove('search-result-open');
+            Search.removeResults();
         }
     })
 
-});
+};
 
 
-var SearchInput = function({
+const SearchInput = function({
     searchUrl,
-    $input,
+    input,
     onType,
     onResult,
     beforeSend,
@@ -50,32 +55,32 @@ var SearchInput = function({
     timeout
 }) {
     this.searchUrl = searchUrl;
-    this.$input = $input;
-    this.appendTo = appendTo;
-    this.$appendTo = $(appendTo);
-    this.onType = onType || function() {};
-    this.onResult = onResult || function() {};
-    this.onRemoveResult = onRemoveResult || function() {};
-    this.beforeSend = beforeSend || function() {};
+    this.input = input;
+    this.appendTo = document.querySelector(appendTo);
+    this.onType = onType || (() => {});
+    this.onResult = onResult || (() => {});
+    this.onRemoveResult = onRemoveResult || (() => {});
+    this.beforeSend = beforeSend || (() => {});
     this.min = min || 3;
     this.perPage = perPage || 10;
     this.timeout = timeout || 300;
-    this.$resultBox = false;
+    this.resultBox = null;
 
-    var typeTimeout = false;
-    var self = this;
-    var resultBoxClass = 'js-search-result';
+    const cache = {};
 
-    this.$input.on('keyup', function() {
+    let typeTimeout = null;
+    const resultBoxClass = 'js-search-result';
+
+    this.input.addEventListener('keyup', () => {
         if(typeTimeout) {
             clearTimeout(typeTimeout);
         }
 
-        var str = getInputString();
+        const str = getInputString();
 
-        self.onType({
-            input: self.$input,
-            appendTo: self.appendTo,
+        this.onType({
+            input: this.input,
+            appendTo: this.appendTo,
             s: str
         })
 
@@ -86,61 +91,84 @@ var SearchInput = function({
 
         typeTimeout = setTimeout(function() {
             handleAjax(str);
-        }, self.timeout)
+        }, this.timeout)
     })
 
-    function handleAjax(str) {
-        $.ajax({
-            url: self.searchUrl,
-            type: 'POST',
-            dataType: 'json',
-            data: {
-              s: str,
-              perPage: self.perPage
-            },
-            beforeSend: function() {
-                self.beforeSend({
-                    input: self.$input,
-                    appendTo: self.appendTo,
-                    s: str
-                });
-            },
-            success: function(data) {
-                resetResultIfExits();
+    const displayResult = (data, str) => {
+        resetResultIfExits();
 
-                self.onResult({
-                    input: self.$input,
-                    appendTo: self.appendTo,
-                    s: str,
-                    data: data
-                });
+        const element = document.createElement('div');
+        element.classList.add(resultBoxClass);
+        element.innerHTML = data.content;
 
-                var $el = $('<div>').addClass(resultBoxClass).html(data.content);
-                self.$appendTo.append($el);
-                self.$resultBox= $('.' + resultBoxClass);
-            }
-          })
-          .fail(function(err) {
-            error(err);
+        this.appendTo.appendChild(element);
+        this.resultBox = document.querySelector('.' + resultBoxClass);
+
+        this.onResult({
+            input: this.input,
+            appendTo: this.appendTo,
+            s: str,
+            data: data
         });
     }
 
-    function handleResultIfStringMatchMinLength(str) {
-        return str.length >= self.min;
+    const handleAjax = (str) => {
+        this.beforeSend({
+            input: this.input,
+            appendTo: this.appendTo,
+            s: str
+        });
+
+        if (typeof cache[str] !== 'undefined') {
+            displayResult(cache[str], str);
+
+            return;
+        }
+
+        let data = {
+            s: str,
+            perPage: this.perPage,
+            ajax: 1,
+        }
+
+        data = Object.keys(data).map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key])).join('&')
+
+        fetch(this.searchUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: data,
+        })
+        ///ISSUE WITH RESPONSE.JSON() AND HTML CONTENT INSIDE JSON
+        .then(response => response.text())
+        .then(data => {
+            data = JSON.parse(data);
+            cache[str] = data;
+
+            displayResult(data, str);
+        })
+        .catch(err => console.error(err))
     }
 
-    function getInputString() {
-        return self.$input.val();
+    const handleResultIfStringMatchMinLength = (str) => {
+        return str.length >= this.min;
     }
 
-    this.removeResults = function() {
+    const getInputString = () => {
+        return this.input.value;
+    }
+
+    this.removeResults = () => {
         resetResultIfExits();
     }
 
-    function resetResultIfExits() {
-        if(self.$resultBox) {
-            self.onRemoveResult();
-            self.$resultBox.remove();
+    const resetResultIfExits = () => {
+        if(this.resultBox) {
+            this.onRemoveResult();
+            this.resultBox.remove();
         }
     }
 }
+
+document.addEventListener('DOMContentLoaded', init);
