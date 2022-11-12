@@ -94,6 +94,4 @@ class Is_Searchbar extends Module
             return null;
         }
     }
-
 }
-

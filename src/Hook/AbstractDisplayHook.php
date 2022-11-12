@@ -14,7 +14,6 @@ abstract class AbstractDisplayHook extends AbstractHook
 
         $this->assignTemplateVariables($params);
 
-
         return $this->module->fetch($this->getTemplateFullPath());
     }
 

@@ -10,7 +10,7 @@ class ActionFrontControllerSetMedia extends AbstractHook
     {
         $this->context->controller->registerJavascript('modules-searchbar', "modules/{$this->module->name}/views/js/is_searchbar.js", [
             'position' => 'bottom',
-            'priority' => 150
+            'priority' => 150,
         ]);
     }
 }
