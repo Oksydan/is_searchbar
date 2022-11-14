@@ -57,8 +57,10 @@ class Is_Searchbar extends Module
             if ($hook = $this->getHookObject($methodName)) {
                 return $hook->execute(...$arguments);
             }
-        } else {
+        } else if (method_exists($this, $methodName)) {
             return $this->{$methodName}(...$arguments);
+        } else {
+            return null;
         }
     }
 
