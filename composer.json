@@ -1,0 +1,26 @@
+{
+  "name": "oksydan/is_searchbar",
+  "description": "Searchbar module",
+  "type": "prestashop-module",
+  "license": "AFL-3.0",
+  "authors": [
+    {
+        "name": "Igor Stępień",
+        "email": "igor@istpien.dev",
+        "homepage": "https://istpien.dev",
+        "role": "Developer"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+        "Oksydan\\IsSearchbar\\": "src/"
+    }
+  },
+  "require": {
+    "php": ">=7.4.0"
+  },
+  "config": {
+    "preferred-install": "dist",
+    "prepend-autoloader": false
+  }
+}
