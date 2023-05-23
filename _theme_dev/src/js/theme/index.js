@@ -2,6 +2,10 @@ import SearchInput from './components/SearchInput';
 
 const init = () => {
   const searchInput = document.querySelector('.js-search-input');
+  if (!searchInput) {
+    return;
+  }
+  
   const getAjaxUrlFromElement = (el) => (el && el.length ? el.getAttribute('data-search-controller-url') : null);
   const ajaxUrl = getAjaxUrlFromElement(document.querySelector('[data-search-controller-url]'));
   const body = document.querySelector('body');
