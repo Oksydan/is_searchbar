@@ -19,7 +19,7 @@ class Is_Searchbar extends Module
     {
         $this->name = 'is_searchbar';
         $this->author = 'Igor Stępień';
-        $this->version = '3.0.0';
+        $this->version = '3.0.1';
         $this->need_instance = 0;
 
         parent::__construct();
