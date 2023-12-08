@@ -11,6 +11,7 @@ if (file_exists(__DIR__ . '/vendor/autoload.php')) {
 }
 
 use Oksydan\IsSearchbar\Hook\HookInterface;
+use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 class Is_Searchbar extends Module
@@ -96,5 +97,10 @@ class Is_Searchbar extends Module
         } catch (ServiceNotFoundException $exception) {
             return null;
         }
+    }
+
+    public function getContent(): void
+    {
+        \Tools::redirectAdmin(SymfonyContainer::getInstance()->get('router')->generate('is_searchbar_controller'));
     }
 }
