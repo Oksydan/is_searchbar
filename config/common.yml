@@ -1,6 +1,4 @@
 services:
-  _defaults:
-    public: true
 
   oksydan.is_searchbar.module:
     class: Is_searchbar
@@ -9,24 +7,7 @@ services:
     arguments:
       - 'is_searchbar'
 
-  oksydan.is_searchbar.hook.abstract_hook:
-    class: Oksydan\IsSearchbar\Hook\AbstractHook
-    public: true
-    arguments:
-      - '@oksydan.is_searchbar.module'
-      - "@=service('prestashop.adapter.legacy.context').getContext()"
+  oksydan.is_searchbar.context:
+    class: Context
+    factory: [ '\Context', getContext ]
 
-  oksydan.is_searchbar.hook.abstract_display_hook:
-    class: Oksydan\IsSearchbar\Hook\AbstractDisplayHook
-    parent: 'oksydan.is_searchbar.hook.abstract_hook'
-    public: true
-
-  oksydan.is_searchbar.hook.display_top:
-    class: Oksydan\IsSearchbar\Hook\DisplayTop
-    parent: 'oksydan.is_searchbar.hook.abstract_display_hook'
-    public: true
-
-  oksydan.is_searchbar.hook.display_search:
-    class: Oksydan\IsSearchbar\Hook\DisplaySearch
-    parent: 'oksydan.is_searchbar.hook.abstract_display_hook'
-    public: true

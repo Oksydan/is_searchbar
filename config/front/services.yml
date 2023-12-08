@@ -1,2 +1,24 @@
 imports:
   - { resource: ../common.yml }
+
+services:
+  _defaults:
+    public: false
+    autowire: true
+    autoconfigure: true
+    bind:
+      $module: '@oksydan.is_searchbar.module'
+      $context: '@oksydan.is_searchbar.context'
+
+  Oksydan\IsSearchbar\:
+    resource: '../../src/*'
+    exclude:
+      - '../../src/index.php'
+      - '../../src/*/index.php'
+
+  Oksydan\IsSearchbar\Hook\:
+    public: true
+    resource: '../../src/Hook/*'
+    exclude:
+      - '../../src/Hook/index.php'
+      - '../../src/Hook/*/index.php'
