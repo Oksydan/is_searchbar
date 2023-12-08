@@ -27,7 +27,7 @@ class Is_Searchbar extends Module
         $this->displayName = $this->trans('Search bar', [], 'Modules.Issearchbar.Admin');
         $this->description = $this->trans('Adds a quick search field to your website.', [], 'Modules.Issearchbar.Admin');
 
-        $this->ps_versions_compliancy = ['min' => '8.0.0', 'max' => _PS_VERSION_];
+        $this->ps_versions_compliancy = ['min' => '8.1.0', 'max' => _PS_VERSION_];
     }
 
     public function isUsingNewTranslationSystem()
@@ -58,12 +58,8 @@ class Is_Searchbar extends Module
     /** @param string $methodName */
     public function __call($methodName, array $arguments)
     {
-        if (str_starts_with($methodName, 'hook')) {
-            if ($hook = $this->getHookObject($methodName)) {
-                return $hook->execute(...$arguments);
-            }
-        } elseif (method_exists($this, $methodName)) {
-            return $this->{$methodName}(...$arguments);
+        if (str_starts_with($methodName, 'hook') && $hook = $this->getHookObject($methodName)) {
+            return $hook->execute(...$arguments);
         } else {
             return null;
         }
@@ -77,8 +73,8 @@ class Is_Searchbar extends Module
     private function getHookObject($methodName)
     {
         $serviceName = sprintf(
-            'oksydan.is_searchbar.hook.%s',
-            \Tools::toUnderscoreCase(str_replace('hook', '', $methodName))
+            'Oksydan\IsSearchbar\Hook\%s',
+            ucwords(str_replace('hook', '', $methodName))
         );
 
         $hook = $this->getService($serviceName);
