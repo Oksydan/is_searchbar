@@ -1,0 +1,11 @@
+is_searchbar_controller:
+    path: /is_searchbar/configuration
+    methods: [GET]
+    defaults:
+        _controller: 'Oksydan\IsSearchbar\Controller\ConfigurationController::index'
+
+is_searchbar_controller_configuration_save:
+    path: /is_searchbar/configuration
+    methods: [POST, PATCH]
+    defaults:
+        _controller: 'Oksydan\IsSearchbar\Controller\ConfigurationController::saveConfiguration'

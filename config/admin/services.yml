@@ -1,0 +1,31 @@
+imports:
+  - { resource: ../common.yml }
+
+services:
+  _defaults:
+    public: false
+    autowire: true
+    autoconfigure: true
+    bind:
+      $module: '@oksydan.is_searchbar.module'
+      $context: '@oksydan.is_searchbar.context'
+      $shopContext: '@prestashop.adapter.shop.context'
+      $multistoreFeature: '@prestashop.adapter.multistore_feature'
+      $locales: '@=service("prestashop.adapter.legacy.context").getLanguages()'
+
+  Oksydan\IsSearchbar\:
+    resource: '../../src/*'
+    exclude:
+      - '../../src/{Controller}'
+      - '../../src/index.php'
+      - '../../src/*/index.php'
+
+  oksydan.is_searchbar.configuration.form_handler:
+    class: 'PrestaShop\PrestaShop\Core\Form\Handler'
+    public: true
+    arguments:
+      - '@form.factory'
+      - '@prestashop.core.hook.dispatcher'
+      - '@Oksydan\IsSearchbar\Form\Provider\SearchbarConfigurationFormDataProvider'
+      - 'Oksydan\IsSearchbar\Form\Type\SearchbarConfigurationType'
+      - 'ConfigurationForm'
