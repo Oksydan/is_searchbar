@@ -16,7 +16,7 @@ services:
   Oksydan\IsSearchbar\:
     resource: '../../src/*'
     exclude:
-      - '../../src/{Controller}'
+      - '../../src/{Controller,Search,Presenter,View}'
       - '../../src/index.php'
       - '../../src/*/index.php'
 

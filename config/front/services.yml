@@ -3,7 +3,7 @@ imports:
 
 services:
   _defaults:
-    public: false
+    public: true
     autowire: true
     autoconfigure: true
     bind:
@@ -11,8 +11,10 @@ services:
       $context: '@oksydan.is_searchbar.context'
 
   Oksydan\IsSearchbar\:
+    public: false;
     resource: '../../src/*'
     exclude:
+      - '../../src/{Form,Controller,Search,Configuration,View}'
       - '../../src/index.php'
       - '../../src/*/index.php'
 
@@ -20,5 +22,25 @@ services:
     public: true
     resource: '../../src/Hook/*'
     exclude:
-      - '../../src/Hook/index.php'
-      - '../../src/Hook/*/index.php'
+      - '../../src/*/index.php'
+
+  Oksydan\IsSearchbar\Configuration\:
+    public: true
+    resource: '../../src/Configuration/*'
+    exclude:
+      - '../../src/*/index.php'
+
+  Oksydan\IsSearchbar\View\:
+    public: true
+    resource: '../../src/View/*'
+    exclude:
+      - '../../src/*/index.php'
+
+  Oksydan\IsSearchbar\Search\:
+    public: true
+    resource: '../../src/Search/*'
+    exclude:
+      - '../../src/Search/Collection/ProductCollection.php'
+      - '../../src/Search/DTO/*'
+      - '../../src/Search/index.php'
+      - '../../src/Search/*/index.php'
