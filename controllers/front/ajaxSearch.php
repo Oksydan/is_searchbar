@@ -1,68 +1,56 @@
 <?php
 
+use Oksydan\IsSearchbar\Configuration\SearchbarConfiguration;
+use Oksydan\IsSearchbar\Search\DTO\SearchDTO;
+use Oksydan\IsSearchbar\Search\ProductFinder;
+use Oksydan\IsSearchbar\View\RenderAutocomplete;
+
 class Is_searchbarAjaxSearchModuleFrontController extends ModuleFrontController
 {
     public $search_string;
-    public $per_page;
 
     public function init()
     {
         parent::init();
 
         $this->search_string = Tools::getValue('s');
-        $this->per_page = Tools::getValue('perPage');
     }
 
     public function initContent()
     {
         parent::initContent();
 
-        $this->ajaxRender(json_encode([
-            'hasError' => false,
-            'sucess' => true,
-            'content' => $this->renderResults(),
-        ]));
+        $this->ajax = true;
+
+        try {
+            $content = $this->renderResults();
+
+            $this->ajaxRender(json_encode([
+                'success' => true,
+                'content' => $content,
+            ]));
+        } catch (\Exception $e) {
+            $this->ajaxRender(json_encode([
+                'success' => false,
+                'content' => $e->getMessage(),
+            ]));
+        }
     }
 
     private function renderResults()
     {
-        $data = Search::find(
+        $searchConfiguration = $this->get(SearchbarConfiguration::class);
+
+        $searchDTO = new SearchDTO(
             $this->context->language->id,
             $this->search_string,
-            1,
-            $this->per_page
+            $searchConfiguration->getPerPage()
         );
 
-        $products = $data['result'];
-        $assembler = new ProductAssembler($this->context);
-        $presenterFactory = new ProductPresenterFactory($this->context);
-        $presentationSettings = $presenterFactory->getPresentationSettings();
-        $presenter = $presenterFactory->getPresenter();
+        $finder = $this->get(ProductFinder::class);
+        $result = $finder->find($searchDTO);
+        $viewRender = $this->get(RenderAutocomplete::class);
 
-        $products_for_template = [];
-
-        foreach ($products as $rawProduct) {
-            $products_for_template[] = $presenter->present(
-                $presentationSettings,
-                $assembler->assembleProduct($rawProduct),
-                $this->context->language
-            );
-        }
-
-        $moreResults = false;
-        $moreResultsCount = 0;
-
-        if ($data['total'] > count($products)) {
-            $moreResults = $this->context->link->getPageLink('search', true, null, ['s' => $this->search_string]);
-            $moreResultsCount = $data['total'] - count($products);
-        }
-
-        $this->context->smarty->assign([
-            'products' => $products_for_template,
-            'moreResults' => $moreResults,
-            'moreResultsCount' => $moreResultsCount,
-        ]);
-
-        return $this->context->smarty->fetch('module:is_searchbar/views/templates/front/search_result.tpl');
+        return $viewRender->render($result);
     }
 }
