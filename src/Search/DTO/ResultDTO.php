@@ -16,8 +16,7 @@ class ResultDTO
         ProductCollection $products,
         int $total,
         string $expr
-    )
-    {
+    ) {
         $this->products = $products;
         $this->total = $total;
         $this->expr = $expr;

@@ -2,8 +2,8 @@
 
 namespace Oksydan\IsSearchbar\View;
 
-use Oksydan\IsSearchbar\Search\DTO\ResultDTO;
 use Oksydan\IsSearchbar\Presenter\ProductPresenter;
+use Oksydan\IsSearchbar\Search\DTO\ResultDTO;
 
 class RenderAutocomplete implements RenderInterface
 {
