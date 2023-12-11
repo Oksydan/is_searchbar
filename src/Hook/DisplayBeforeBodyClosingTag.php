@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Oksydan\IsSearchbar\Hook;
 
-class DisplayTop extends AbstractDisplayHook
+class DisplayBeforeBodyClosingTag extends AbstractDisplayHook
 {
-    private const TEMPLATE_FILE = 'displayTop.tpl';
+    private const TEMPLATE_FILE = 'displayBeforeBodyClosingTag.tpl';
 
     protected function getTemplate(): string
     {

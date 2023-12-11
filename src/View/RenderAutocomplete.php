@@ -7,11 +7,19 @@ use Oksydan\IsSearchbar\Search\DTO\ResultDTO;
 
 class RenderAutocomplete implements RenderInterface
 {
+    public const TYPE_DESKTOP = 'desktop';
+
+    public const TYPE_MOBILE = 'mobile';
+
+    private const TEMPLATE_MOBILE = 'search_result_mobile.tpl';
+
+    private const TEMPLATE_DESKTOP = 'search_result.tpl';
+
+    private string $type = self::TYPE_DESKTOP;
+
     private \Context $context;
 
     private ProductPresenter $productPresenter;
-
-    private const TEMPLATE = 'module:is_searchbar/views/templates/front/search_result.tpl';
 
     public function __construct(
         \Context $context,
@@ -21,16 +29,35 @@ class RenderAutocomplete implements RenderInterface
         $this->productPresenter = $productPresenter;
     }
 
-    public function render(ResultDTO $searchResult): string
+    public function render(ResultDTO $searchResult, string $type): string
     {
         $this->assignVariables($searchResult);
+        $this->assignType($type);
 
         return $this->renderTemplate();
     }
 
+    private function assignType(string $type): void
+    {
+        if (in_array($type, [self::TYPE_DESKTOP, self::TYPE_MOBILE])) {
+            $this->type = $type;
+        }
+    }
+
+    private function getTemplate(): string
+    {
+        $template = 'module:is_searchbar/views/templates/front/';
+
+        if ($this->type === self::TYPE_MOBILE) {
+            return $template . self::TEMPLATE_MOBILE;
+        }
+
+        return $template . self::TEMPLATE_DESKTOP;
+    }
+
     private function renderTemplate(): string
     {
-        return $this->context->smarty->fetch(self::TEMPLATE);
+        return $this->context->smarty->fetch($this->getTemplate());
     }
 
     private function assignVariables(ResultDTO $searchResult): void

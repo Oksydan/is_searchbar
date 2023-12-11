@@ -1,0 +1,47 @@
+@use "sass:map";
+
+.search-form {
+  position: relative;
+  max-width: rem-calc(620px);
+  width: 100%;
+  margin: 0 auto;
+
+  &__form-group {
+    position: relative;
+
+    @include media-breakpoint-up(md) {
+      .search-result-open & {
+        z-index: 101;
+      }
+    }
+
+    &--offcanvas {
+      padding: var(--bs-offcanvas-padding-y) var(--bs-offcanvas-padding-x);
+      background: $gray-100;
+      border-bottom: 1px solid $border-color;
+    }
+  }
+
+  &__input {
+    height: $search-input-height;
+    padding: 0 rem-calc(70px) 0 rem-calc(30px);
+    line-height: $search-input-height;
+    color: $gray-900;
+
+    &:focus {
+      background: $gray-100;
+      box-shadow: none;
+    }
+
+  }
+
+  &__btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0 map.get($spacers, 3);
+    line-height: 1;
+    color: $primary;
+  }
+}

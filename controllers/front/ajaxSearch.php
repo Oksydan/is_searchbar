@@ -14,6 +14,7 @@ class Is_searchbarAjaxSearchModuleFrontController extends ModuleFrontController
         parent::init();
 
         $this->search_string = Tools::getValue('s');
+        $this->type = Tools::getValue('type', RenderAutocomplete::TYPE_DESKTOP);
     }
 
     public function initContent()
@@ -51,6 +52,6 @@ class Is_searchbarAjaxSearchModuleFrontController extends ModuleFrontController
         $result = $finder->find($searchDTO);
         $viewRender = $this->get(RenderAutocomplete::class);
 
-        return $viewRender->render($result);
+        return $viewRender->render($result, $this->type);
     }
 }
