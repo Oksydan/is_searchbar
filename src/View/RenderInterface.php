@@ -6,5 +6,5 @@ use Oksydan\IsSearchbar\Search\DTO\ResultDTO;
 
 interface RenderInterface
 {
-    public function render(ResultDTO $searchResult): string;
+    public function render(ResultDTO $searchResult, string $type): string;
 }

@@ -1,50 +1,122 @@
-import SearchInput from './components/SearchInput';
+import { DOMReady } from '@js/utils/DOM/DOMHelpers';
+import useAutocomplete from './components/useAutocomplete';
+import getSearchResultRequest from './request/getSearchResultRequest';
 
-const init = () => {
-  const searchInput = document.querySelector('.js-search-input');
+const getAjaxUrlFromElement = (el) => (el && el.length ? el.getAttribute('data-search-controller-url') : null);
 
-  if (!searchInput) {
-    return;
+const calcResultContentHeight = (content) => {
+  const { top, height } = content.getBoundingClientRect();
+  const windowHeight = window.innerHeight;
+
+  if (top + height > windowHeight) {
+    content.style.height = `${windowHeight - top}px`;
+  } else {
+    content.style.height = 'auto';
   }
-
-  const getAjaxUrlFromElement = (el) => (el && el.length ? el.getAttribute('data-search-controller-url') : null);
-  const ajaxUrl = getAjaxUrlFromElement(document.querySelector('[data-search-controller-url]'));
-  const body = document.querySelector('body');
-  const inputForm = searchInput.closest('.js-search-form');
-  const backdrop = document.createElement('div');
-  backdrop.classList.add('search-backdrop');
-  body.appendChild(backdrop);
-
-  if (!ajaxUrl) {
-    return;
-  }
-
-  const Search = new SearchInput({
-    searchUrl: ajaxUrl,
-    input: searchInput,
-    appendTo: '.js-search-form',
-    perPage: 6,
-    onResult: () => {
-      body.classList.add('search-result-open');
-      prestashop.pageLazyLoad.update();
-    },
-    onRemoveResult: () => {
-      body.classList.remove('search-result-open');
-    },
-    beforeSend: () => {
-      // console.log('BEFORE SEND ' + e);
-    },
-    onType: () => {
-      // console.log('ON TYPE ' + e);
-    },
-  });
-
-  body.addEventListener('click', ({ target }) => {
-    if (body.classList.contains('search-result-open') && target !== inputForm && !target.closest('.js-search-form')) {
-      body.classList.remove('search-result-open');
-      Search.removeResults();
-    }
-  });
 };
 
-document.addEventListener('DOMContentLoaded', init);
+const initDesktopSearch = () => {
+  const searchInput = document.querySelector('.js-search-input');
+  const searchResult = document.querySelector('.js-search-result');
+
+  if (!searchInput || !searchResult) {
+    return;
+  }
+
+  const ajaxUrl = getAjaxUrlFromElement(document.querySelector('[data-search-controller-url]'));
+
+  const {
+    init: initSearch,
+    appendResult,
+    showResult,
+  } = useAutocomplete(
+    searchInput,
+    searchResult,
+    {
+      onSearch: async () => {
+        const { getRequest } = getSearchResultRequest(ajaxUrl, {
+          s: searchInput.value,
+          ajax: 1,
+          type: 'desktop',
+        });
+
+        try {
+          const data = await getRequest();
+          appendResult(data.content);
+          showResult();
+        } catch (e) {
+          throw new Error(e);
+        }
+      },
+      onOpenResult: (input, resultElement) => {
+        document.body.classList.add('search-result-open');
+        const resultContent = resultElement.querySelector('.js-search-result-content');
+
+        if (resultContent instanceof HTMLElement) {
+          calcResultContentHeight(resultContent);
+        }
+      },
+      onCloseResult: () => {
+        document.body.classList.remove('search-result-open');
+      },
+    },
+  );
+
+  initSearch();
+};
+
+const initMobileSearch = () => {
+  const searchInput = document.querySelector('.js-search-input-mobile');
+  const searchResult = document.querySelector('.js-search-result-mobile');
+  const offcanvas = document.querySelector('.js-search-offcanvas');
+
+  if (!searchInput || !searchResult) {
+    return;
+  }
+
+  const ajaxUrl = getAjaxUrlFromElement(document.querySelector('[data-search-controller-url]'));
+
+  const {
+    init: initSearch,
+    appendResult,
+    hideResult,
+    showResult,
+  } = useAutocomplete(
+    searchInput,
+    searchResult,
+    {
+      hideOnBlur: false,
+      onSearch: async () => {
+        const { getRequest } = getSearchResultRequest(ajaxUrl, {
+          s: searchInput.value,
+          ajax: 1,
+          type: 'mobile',
+        });
+
+        try {
+          const data = await getRequest();
+          appendResult(data.content);
+          showResult();
+        } catch (e) {
+          throw new Error(e);
+        }
+      },
+    },
+  );
+
+  if (offcanvas) {
+    offcanvas.addEventListener('hidden.bs.offcanvas', () => {
+      searchInput.value = '';
+      hideResult();
+    });
+  }
+
+  initSearch();
+};
+
+const init = () => {
+  initDesktopSearch();
+  initMobileSearch();
+};
+
+DOMReady(init);

@@ -1,4 +1,4 @@
-<div class="search-result__content search-result__content--desktop js-search-result-content">
+<div class="search-result__content search-result__content--offcanvas js-search-result-content">
   {if $products}
     <div class="search-result__products">
       {foreach from=$products item=$product}
@@ -7,8 +7,8 @@
     </div>
 
     {if !empty($moreResultsCount) && $moreResultsCount > 0}
-      <div class="search-result__bottom search-result__bottom--desktop p-2 mt-2 border-top">
-        <a href="{$moreResults}" class="btn d-block w-100 text-center btn-outline-secondary btn-sm">
+      <div class="search-result__bottom search-result__bottom--offcanvas">
+        <a href="{$moreResults}" class="btn d-block w-100 text-center btn-outline-secondary">
           {l
             s='Show the remaining %qty% products'
             sprintf=[

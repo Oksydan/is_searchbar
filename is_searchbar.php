@@ -20,7 +20,7 @@ class Is_Searchbar extends Module
     {
         $this->name = 'is_searchbar';
         $this->author = 'Igor Stępień';
-        $this->version = '3.0.1';
+        $this->version = '4.0.0';
         $this->need_instance = 0;
 
         parent::__construct();
@@ -41,10 +41,15 @@ class Is_Searchbar extends Module
      */
     public function install(): bool
     {
+        if (Shop::isFeatureActive()) {
+            Shop::setContext(Shop::CONTEXT_ALL);
+        }
+
         return parent::install()
             && $this->registerHook('displayTop')
+            && $this->registerHook('displayBeforeBodyClosingTag')
             && $this->registerHook('displaySearch')
-            && $this->registerHook('actionFrontControllerSetMedia')
+            && Configuration::updateGlobalValue(SearchbarConfiguration::IS_SEARCHBAR_PER_PAGE, 8)
         ;
     }
 
