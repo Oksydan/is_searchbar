@@ -12,7 +12,7 @@ function upgrade_module_4_0_0($module)
         Shop::setContext(Shop::CONTEXT_ALL);
     }
 
-    $res = $module->unregisterHook('displayBeforeBodyClosingTag');
+    $res = $module->registerHook('displayBeforeBodyClosingTag');
     $res .= Configuration::updateGlobalValue(SearchbarConfiguration::IS_SEARCHBAR_PER_PAGE, 8);
 
     return $res;
